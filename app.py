@@ -52,20 +52,46 @@ def image_puller():
         print(f"Option 'restart_containers' is false. Image pulled, but no containers will be restarted.")
         return jsonify(success=True, message=f"Image {full_image_name_for_pull} pulled successfully. No containers restarted as requested."), 200
 
-    # 3. Identify containers to update
+    # 3. Identify containers to update based on Image ID
     old_containers_to_update = []
-    print(f"Scanning for running containers based on image '{full_image_name_for_pull}'...")
+    # Get the short ID of the newly pulled image
+    new_image_short_id = pulled_image.short_id.split(':')[-1] 
+    
+    print(f"Scanning for running containers with repository '{image_repo}' and not using new image ID '{new_image_short_id}'...")
+    print(f"--- Target Image for Update: {full_image_name_for_pull} (ID: {pulled_image.id}) ---")
+
     try:
         for container in client.containers.list():
-            # A container's image can have multiple tags, so we check if our target is among them
-            if full_image_name_for_pull in container.image.tags:
+            container_image_id = container.image.id # Full ID like 'sha256:...'
+            container_image_short_id = container.image.short_id.split(':')[-1] # Short ID like 'abcdef123456'
+            
+            print(f"\n  --- Examining Container: {container.name} (ID: {container.id[:12]}) ---")
+            print(f"    Container Image ID: {container_image_id}")
+            print(f"    Container Image Tags: {container.image.tags}")
+            
+            is_same_repo = False
+            for tag in container.image.tags:
+                print(f"    - Checking tag '{tag}' against repo '{image_repo}'")
+                # Check if the tag starts with the exact repository name, followed by ':' or just the repo name
+                if tag.startswith(f"{image_repo}:") or tag == image_repo:
+                    is_same_repo = True
+                    print(f"      -> Tag matches repository: {is_same_repo}")
+                    break
+            
+            print(f"    Overall 'is_same_repo' for container: {is_same_repo}")
+            print(f"    Comparing Container Image ID ({container_image_id}) with Pulled Image ID ({pulled_image.id})")
+            
+            # If it's the same repo AND the image ID is different (meaning it's an old version)
+            if is_same_repo and container_image_id != pulled_image.id:
                 old_containers_to_update.append(container)
-                print(f" - Found container to update: {container.name} (ID: {container.id[:12]})")
+                print(f"  -> MATCH: Found container to update: {container.name} (ID: {container_image_short_id}) - Running old image.")
+            else:
+                print(f"  -> NO MATCH: Skipping container: {container.name} (ID: {container_image_short_id})")
+                if not is_same_repo:
+                    print(f"      Reason: Repository name did not match.")
+                if container_image_id == pulled_image.id:
+                    print(f"      Reason: Container is already running the latest image ID.")
 
-            # Also consider containers that might just use the repository name without a specific tag, especially if the pulled image is 'latest'
-            elif image_tag == 'latest' and image_repo in container.image.tags:
-                old_containers_to_update.append(container)
-                print(f" - Found container to update (implicit latest): {container.name} (ID: {container.id[:12]})")
 
     except docker.errors.APIError as e:
         print(f"Error listing containers: {e}")
