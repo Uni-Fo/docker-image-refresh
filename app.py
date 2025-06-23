@@ -20,26 +20,18 @@ def main():
 
 @app.route('/images/pull', methods=['POST'])
 def image_puller():
-    if not request.form['token'] or not request.form['image']:
-        return jsonify(success=False, error="Missing parameters"), 400
+    # 1. Validate required parameters: token, repository, and optionally tag
+    if not request.form.get('token') or not request.form.get('repository'):
+        return jsonify(success=False, error="Missing parameters 'token' or 'repository'"), 400
 
-    target_image_name_with_tag = request.form['image']
-
-    if request.form['token'] != os.environ['TOKEN']:
+    image_repo = request.form['repository']
+    image_tag = request.form.get('tag', 'latest')
+    full_image_name_for_pull = f"{image_repo}:{image_tag}"
+    
+    if request.form['token'] != os.environ.get('TOKEN', ''):
         return jsonify(success=False, error="Invalid token"), 403
 
-    restart_containers = True if request.form['restart_containers'] == "true" else False
-
-    # 1. Parse and validate the target image name and tag
-    print(f"--- Starting update for image: {target_image_name_with_tag} ---")
-    try:
-        parsed_image = docker.utils.parse_image_name(target_image_name_with_tag)
-        image_repo = parsed_image['repository']
-        image_tag = parsed_image['tag'] if parsed_image['tag'] else 'latest'
-        full_image_name_for_pull = f"{image_repo}:{image_tag}"
-    except Exception as e:
-        print(f"Error: Invalid image name format '{target_image_name_with_tag}': {e}")
-        return jsonify(success=False, error=f"Invalid image name format: {target_image_name_with_tag}"), 500
+    restart_containers = request.form.get('restart_containers', 'false').lower() == "true"
 
     # 2. Pull the new image
     print(f"Pulling new image: {full_image_name_for_pull}...")
