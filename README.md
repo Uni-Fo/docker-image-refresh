@@ -8,7 +8,7 @@ Forked from https://hub.docker.com/r/tuxity/docker-image-puller because docker i
 
 ## Overview
 
-If you work with docker and continuous integrations tools, you might need to update your images on your servers as soon as your build is finished.
+If you work with docker and continuous integrations tools, you might need to update your images on your servers as soon as your build is finished. If tools like [Watchtower] (https://github.com/containrrr/watchtower) don't cover your needs, maybe this will fit. Suitable for homelabs, local development. Probably not something to put into production environments. Use at your own risk. No warranty provided.
 
 This tool is a tiny webserver listening for a `POST` and automatically update the specified image using [Docker](https://docs.docker.com/engine/reference/api/docker_remote_api/) API.
 
@@ -28,6 +28,8 @@ docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   yourimageregistry/docker-image-refresh
 ```
+
+I haven't pushed an image to docker yet.
 
 Available env variable:
 ```
