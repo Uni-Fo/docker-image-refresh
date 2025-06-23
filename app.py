@@ -56,8 +56,9 @@ def image_puller():
         print(f"An unexpected error occurred while pulling image: {e}")
         return jsonify(success=False, error=f"An unexpected error occurred while pulling image: {e}"), 500
     
-    if restart_containers == False:
-        return jsonify(success=True, message=str(len(old_containers)) + " containers updated"), 200
+    if not restart_containers:
+        print(f"Option 'restart_containers' is false. Image pulled, but no containers will be restarted.")
+        return jsonify(success=True, message=f"Image {full_image_name_for_pull} pulled successfully. No containers restarted as requested."), 200
 
     # 3. Identify containers to update
     old_containers_to_update = []
@@ -94,23 +95,22 @@ def image_puller():
         print(f"\n--- Processing container: {original_container_name} (ID: {old_container_id}) ---")
 
         try:
-            # Get configuration from the old container
+            # 4.1: Get configuration from old container
             config = old_container.attrs['Config']
             host_config_attrs = old_container.attrs['HostConfig']
             network_settings = old_container.attrs['NetworkSettings']
             
-            # Step 3: Stop old container
+            # 4.2: Stop old container
             print(f"Stopping old container '{original_container_name}' (ID: {old_container_id})...")
             old_container.stop(timeout=30) # Give it 30 seconds to stop gracefully
             print(f"Old container stopped.")
 
-            # Step 5: Remove old container
+            # 4.3: Remove old container
             print(f"Removing old container '{original_container_name}' (ID: {old_container_id})...")
             old_container.remove()
             print(f"Old container removed.")
 
-
-            # Prepare arguments for create_container
+            # 4.4 Prepare arguments for create_container
             create_args = {
                 'image': config.get('Image'), # This will be the image name/tag, e.g., "my_app:latest"
                                               # Docker will use the *newly pulled* version.
@@ -184,13 +184,13 @@ def image_puller():
             )
             create_args['host_config'] = host_config
 
-            # Step 2: Create new container with the original name
+            # 4.5: Create new container with the original name
             print(f"Creating new container '{original_container_name}'...")
             new_container_response = client.api.create_container(**create_args)
             new_container = client.containers.get(new_container_response['Id'])
             print(f"New container '{new_container.name}' (ID: {new_container.id[:12]}) created.")
 
-            # Handle network connections (especially for multiple custom networks)
+            # 4.6: Handle network connections (especially for multiple custom networks)
             # The 'NetworkMode' in HostConfig handles single network connections (e.g., bridge, host, custom_network_name).
             # For containers connected to multiple custom networks, we need to explicitly connect.
             if network_settings and network_settings.get('Networks'):
@@ -220,7 +220,7 @@ def image_puller():
                     except docker.errors.APIError as net_err:
                         print(f"Warning: Failed to connect new container to network '{net_name}': {net_err}")
 
-            # Step 4: Start new container
+            # 4.7: Start new container
             print(f"Starting new container '{original_container_name}' (ID: {new_container.id[:12]})...")
             new_container.start()
             print(f"New container started.")
