@@ -255,8 +255,8 @@ def main(h, p, debug):
         print ('ERROR: Missing TOKEN env variable')
         sys.exit(1)
 
-    registry_user = os.environ.get('REGISTRY_USER')
-    registry_passwd = os.environ.get('REGISTRY_PASSWD')
+    registry_user = os.environ.get('REGISTRY_USERNAME')
+    registry_passwd = os.environ.get('REGISTRY_PASSWORD')
     registry_url = os.environ.get('REGISTRY_URL', 'https://index.docker.io/v1/')
 
     if registry_user and registry_passwd:
