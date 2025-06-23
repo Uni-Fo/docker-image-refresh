@@ -1,4 +1,4 @@
-Docker Image Puller
+Docker Image Refresh
 ===================
 
 [![](https://images.microbadger.com/badges/version/tuxity/docker-image-puller.svg)](https://hub.docker.com/r/tuxity/docker-image-puller/)
