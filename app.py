@@ -124,7 +124,7 @@ def image_puller():
                 #'stop_timeout': config.get('StopTimeout'),
                 #'healthcheck': config.get('Healthcheck'),
                 'volumes': config.get('Volumes'), # Anonymous volumes
-                'read_only': config.get('ReadonlyRootfs', False),
+                #'read_only': config.get('ReadonlyRootfs', False),
             }
 
             # Prepare host config
