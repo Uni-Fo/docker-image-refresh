@@ -116,13 +116,13 @@ def image_puller():
                 'hostname': config.get('Hostname'),
                 'user': config.get('User'),
                 'tty': config.get('Tty', False), # Default to False if not present
-                'stdin_open': config.get('OpenStdin', False), # Default to False if not present
-                'attach_stdin': config.get('AttachStdin', False),
-                'attach_stdout': config.get('AttachStdout', True),
-                'attach_stderr': config.get('AttachStderr', True),
-                'stop_signal': config.get('StopSignal'),
-                'stop_timeout': config.get('StopTimeout'),
-                'healthcheck': config.get('Healthcheck'),
+                #'stdin_open': config.get('OpenStdin', False), # Default to False if not present
+                #'attach_stdin': config.get('AttachStdin', False),
+                #'attach_stdout': config.get('AttachStdout', True),
+                #'attach_stderr': config.get('AttachStderr', True),
+                #'stop_signal': config.get('StopSignal'),
+                #'stop_timeout': config.get('StopTimeout'),
+                #'healthcheck': config.get('Healthcheck'),
                 'volumes': config.get('Volumes'), # Anonymous volumes
                 'read_only': config.get('ReadonlyRootfs', False),
             }
