@@ -59,7 +59,7 @@ def image_puller():
         for container in client.containers.list():
             # A container's image can have multiple tags, so we check if our target is among them
             for tag in container.image.tags:
-                print(f"{full_image_name_for_pull} == {tag}")
+                print(f"{container.name} == {tag}")
 
             #if re.match( r'.*' + re.escape(image) + r'$', container.attrs['Config']['Image']):
             if full_image_name_for_pull in container.image.tags:
