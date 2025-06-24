@@ -125,6 +125,7 @@ def image_puller():
                 #'healthcheck': config.get('Healthcheck'),
                 'volumes': config.get('Volumes'), # Anonymous volumes
                 #'read_only': config.get('ReadonlyRootfs', False),
+                'ports': list(config.get('ExposedPorts', {}).keys())
             }
 
             # Prepare port_bindings for create_host_config
