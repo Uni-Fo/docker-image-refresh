@@ -56,12 +56,8 @@ def image_puller():
     old_containers_to_update = []
     print(f"Scanning for running containers based on image '{full_image_name_for_pull}'...")
     try:
-        print(f"Found {len(client.containers.list())} containers")
         for container in client.containers.list():
             # A container's image can have multiple tags, so we check if our target is among them
-            for tag in container.image.tags:
-                print(f"{container.name} == {tag}")
-
             #if re.match( r'.*' + re.escape(image) + r'$', container.attrs['Config']['Image']):
             if full_image_name_for_pull in container.image.tags:
                 old_containers_to_update.append(container)
@@ -149,15 +145,15 @@ def image_puller():
                 group_add=host_config_attrs.get('GroupAdd'),
                 devices=host_config_attrs.get('Devices'),
                 log_config=host_config_attrs.get('LogConfig'),
-                memory=host_config_attrs.get('Memory'),
-                memory_swap=host_config_attrs.get('MemorySwap'),
-                memory_reservation=host_config_attrs.get('MemoryReservation'),
-                kernel_memory=host_config_attrs.get('KernelMemory'),
-                cpu_period=host_config_attrs.get('CpuPeriod'),
-                cpu_quota=host_config_attrs.get('CpuQuota'),
-                cpu_shares=host_config_attrs.get('CpuShares'),
-                cpuset_cpus=host_config_attrs.get('CpusetCpus'),
-                cpuset_mems=host_config_attrs.get('CpusetMems'),
+                #memory=host_config_attrs.get('Memory'),
+                #memory_swap=host_config_attrs.get('MemorySwap'),
+                #memory_reservation=host_config_attrs.get('MemoryReservation'),
+                #kernel_memory=host_config_attrs.get('KernelMemory'),
+                #cpu_period=host_config_attrs.get('CpuPeriod'),
+                #cpu_quota=host_config_attrs.get('CpuQuota'),
+                #cpu_shares=host_config_attrs.get('CpuShares'),
+                #cpuset_cpus=host_config_attrs.get('CpusetCpus'),
+                #cpuset_mems=host_config_attrs.get('CpusetMems'),
                 blkio_weight=host_config_attrs.get('BlkioWeight'),
                 blkio_device_read_bps=host_config_attrs.get('BlkioDeviceReadBps'),
                 blkio_device_write_bps=host_config_attrs.get('BlkioDeviceWriteBps'),
