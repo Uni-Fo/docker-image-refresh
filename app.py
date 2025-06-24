@@ -127,11 +127,35 @@ def image_puller():
                 #'read_only': config.get('ReadonlyRootfs', False),
             }
 
+            # Prepare port_bindings for create_host_config
+            old_port_bindings = host_config_attrs.get('PortBindings') or {}
+            new_port_bindings = {}
+
+            if old_port_bindings:
+                for container_port, host_binds in old_port_bindings.items():
+                    bindings_for_this_port = []
+                    for bind_info in host_binds:
+                        host_ip = bind_info.get('HostIp', '')
+                        host_port = bind_info.get('HostPort')
+
+                        if host_port: # Only add if a host port is actually specified
+                            if host_ip and host_ip != '0.0.0.0':
+                                bindings_for_this_port.append((host_ip, host_port))
+                            else:
+                                bindings_for_this_port.append(host_port)
+                    
+                    # If only one binding for port and it's just a port number, simplify it for create_host_config
+                    if len(bindings_for_this_port) == 1 and isinstance(bindings_for_this_port[0], str):
+                        new_port_bindings[container_port] = bindings_for_this_port[0]
+                    elif len(bindings_for_this_port) > 0:
+                        new_port_bindings[container_port] = bindings_for_this_port
+                    # If there are no actual host ports bound, no need to add this container_port
+
             # Prepare host config
             # Use client.api.create_host_config to correctly format host-specific options
             host_config = client.api.create_host_config(
                 binds=host_config_attrs.get('Binds'),
-                port_bindings=host_config_attrs.get('PortBindings'),
+                port_bindings=new_port_bindings,
                 links=host_config_attrs.get('Links'),
                 lxc_conf=host_config_attrs.get('LxcConf'),
                 privileged=host_config_attrs.get('Privileged', False),
