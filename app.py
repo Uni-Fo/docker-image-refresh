@@ -56,6 +56,7 @@ def image_puller():
     old_containers_to_update = []
     print(f"Scanning for running containers based on image '{full_image_name_for_pull}'...")
     try:
+        print(f"Found {len(client.containers.list())} containers")
         for container in client.containers.list():
             # A container's image can have multiple tags, so we check if our target is among them
             for tag in container.image.tags:
