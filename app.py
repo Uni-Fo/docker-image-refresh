@@ -103,39 +103,6 @@ def image_puller():
             old_container.remove()
             print(f"Old container removed.")
 
-            # 4.4 Prepare arguments for create_container
-            create_args = {
-                'image': config.get('Image'), # This will be the image name/tag, e.g., "my_app:latest"
-                                              # Docker will use the *newly pulled* version.
-                'name': original_container_name, # Use the original name for the new container
-                'environment': config.get('Env'),
-                'labels': config.get('Labels'),
-                'command': config.get('Cmd'),
-                'entrypoint': config.get('Entrypoint'),
-                'working_dir': config.get('WorkingDir'),
-                'hostname': config.get('Hostname'),
-                'user': config.get('User'),
-                'tty': config.get('Tty', False), # Default to False if not present
-                #'stdin_open': config.get('OpenStdin', False), # Default to False if not present
-                #'attach_stdin': config.get('AttachStdin', False),
-                #'attach_stdout': config.get('AttachStdout', True),
-                #'attach_stderr': config.get('AttachStderr', True),
-                #'stop_signal': config.get('StopSignal'),
-                #'stop_timeout': config.get('StopTimeout'),
-                #'healthcheck': config.get('Healthcheck'),
-                'volumes': config.get('Volumes'), # Anonymous volumes
-                #'read_only': config.get('ReadonlyRootfs', False),
-                'ports': {'8080/tcp': 78} #list(config.get('ExposedPorts', {}).keys())
-            }
-            test = list(config.get('ExposedPorts', {}).keys())
-            print(f"ports={test}")
-            for t in test:
-                print(f"test: {t}")
-            test2 = config.get('ExposedPorts', {})
-            print(f"ports={test2}")
-            for t in test2:
-                print(f"test: {t}")
-
             # Prepare port_bindings for create_host_config
             old_port_bindings = host_config_attrs.get('PortBindings') or {}
             new_port_bindings = {}
@@ -159,13 +126,37 @@ def image_puller():
                     elif len(bindings_for_this_port) > 0:
                         new_port_bindings[container_port] = bindings_for_this_port
                     # If there are no actual host ports bound, no need to add this container_port
-            print(f"port bindings: {new_port_bindings}")
+
+            # 4.4 Prepare arguments for create_container
+            create_args = {
+                'image': config.get('Image'), # This will be the image name/tag, e.g., "my_app:latest"
+                                              # Docker will use the *newly pulled* version.
+                'name': original_container_name, # Use the original name for the new container
+                'environment': config.get('Env'),
+                'labels': config.get('Labels'),
+                'command': config.get('Cmd'),
+                'entrypoint': config.get('Entrypoint'),
+                'working_dir': config.get('WorkingDir'),
+                'hostname': config.get('Hostname'),
+                'user': config.get('User'),
+                'tty': config.get('Tty', False), # Default to False if not present
+                #'stdin_open': config.get('OpenStdin', False), # Default to False if not present
+                #'attach_stdin': config.get('AttachStdin', False),
+                #'attach_stdout': config.get('AttachStdout', True),
+                #'attach_stderr': config.get('AttachStderr', True),
+                #'stop_signal': config.get('StopSignal'),
+                #'stop_timeout': config.get('StopTimeout'),
+                #'healthcheck': config.get('Healthcheck'),
+                'volumes': config.get('Volumes'), # Anonymous volumes
+                #'read_only': config.get('ReadonlyRootfs', False),
+                'ports': new_port_bindings
+            }
 
             # Prepare host config
             # Use client.api.create_host_config to correctly format host-specific options
             host_config = client.api.create_host_config(
                 binds=host_config_attrs.get('Binds'),
-                port_bindings=new_port_bindings,
+                port_bindings=host_config_attrs.get('PortBindings'),
                 links=host_config_attrs.get('Links'),
                 lxc_conf=host_config_attrs.get('LxcConf'),
                 privileged=host_config_attrs.get('Privileged', False),
