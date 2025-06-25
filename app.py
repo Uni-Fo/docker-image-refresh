@@ -131,6 +131,10 @@ def image_puller():
             print(f"ports={test}")
             for t in test:
                 print(f"test: {t}")
+            test2 = config.get('ExposedPorts', {})
+            print(f"ports={test2}")
+            for t in test2:
+                print(f"test: {t}")
 
             # Prepare port_bindings for create_host_config
             old_port_bindings = host_config_attrs.get('PortBindings') or {}
