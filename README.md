@@ -4,7 +4,7 @@ Docker Image Refresh
 [![](https://images.microbadger.com/badges/version/tuxity/docker-image-puller.svg)](https://hub.docker.com/r/tuxity/docker-image-puller/)
 ![](https://images.microbadger.com/badges/image/tuxity/docker-image-puller.svg)
 
-Forked from https://hub.docker.com/r/tuxity/docker-image-puller because docker image puller is flawed in how it deconstructs image name making it unusable for any image registry on a non-standard port. It also wasn't very thorough with how it created the new container.
+Forked from [tuxity/docker-image-puller](https://github.com/tuxity/docker-image-puller) because docker image puller is flawed in how it deconstructs image name making it unusable for any image registry on a non-standard port. It also wasn't very thorough with how it created the new container.
 
 ## Overview
 
