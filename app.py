@@ -149,9 +149,9 @@ def image_puller():
                 #'healthcheck': config.get('Healthcheck'),
                 'volumes': config.get('Volumes'), # Anonymous volumes
                 #'read_only': config.get('ReadonlyRootfs', False),
-                'ports': new_port_bindings
+                'ports': config.get('ExposedPorts', {})
             }
-            print(f"Port bindings: {new_port_bindings}")
+            print(f"Port bindings: {new_port_bindings} vs exposed ports: {config.get('ExposedPorts')}")
 
             # Prepare host config
             # Use client.api.create_host_config to correctly format host-specific options
