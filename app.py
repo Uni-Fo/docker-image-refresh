@@ -127,6 +127,10 @@ def image_puller():
                 #'read_only': config.get('ReadonlyRootfs', False),
                 'ports': list(config.get('ExposedPorts', {}).keys())
             }
+            test = list(config.get('ExposedPorts', {}).keys())
+            print(f"ports={test}")
+            for t in test:
+                print(f"test: {t}")
 
             # Prepare port_bindings for create_host_config
             old_port_bindings = host_config_attrs.get('PortBindings') or {}
@@ -194,7 +198,7 @@ def image_puller():
                 runtime=host_config_attrs.get('Runtime'),
                 cgroup_parent=host_config_attrs.get('CgroupParent'),
                 oom_kill_disable=host_config_attrs.get('OomKillDisable', False),
-                init=host_config_attrs.get('Init', False),
+                #init=host_config_attrs.get('Init', False),
                 # Note: NetworkMode is typically handled here if it's a single network
                 network_mode=host_config_attrs.get('NetworkMode'),
                 restart_policy=host_config_attrs.get('RestartPolicy'),
@@ -204,8 +208,8 @@ def image_puller():
 
             # 4.5: Create new container with the original name
             print(f"Creating new container '{original_container_name}'...")
-            #new_container_response = client.api.create_container(**create_args)
-            new_container_response = docker.APIClient().create_container(config['Image'], environment=config['Env'], host_config=host_config_attrs)
+            new_container_response = client.api.create_container(**create_args)
+            #new_container_response = docker.APIClient().create_container(config['Image'], environment=config['Env'], host_config=host_config_attrs)
             new_container = client.containers.get(new_container_response['Id'])
             print(f"New container '{new_container.name}' (ID: {new_container.id[:12]}) created.")
 
