@@ -156,7 +156,7 @@ def image_puller():
             # Use client.api.create_host_config to correctly format host-specific options
             host_config = client.api.create_host_config(
                 binds=host_config_attrs.get('Binds'),
-                port_bindings=host_config_attrs.get('PortBindings'),
+                port_bindings=new_port_bindings,
                 links=host_config_attrs.get('Links'),
                 lxc_conf=host_config_attrs.get('LxcConf'),
                 privileged=host_config_attrs.get('Privileged', False),
