@@ -204,7 +204,8 @@ def image_puller():
 
             # 4.5: Create new container with the original name
             print(f"Creating new container '{original_container_name}'...")
-            new_container_response = client.api.create_container(**create_args)
+            #new_container_response = client.api.create_container(**create_args)
+            new_container_response = docker.APIClient().create_container(config['Image'], environment=config['Env'], host_config=host_config_attrs)
             new_container = client.containers.get(new_container_response['Id'])
             print(f"New container '{new_container.name}' (ID: {new_container.id[:12]}) created.")
 
