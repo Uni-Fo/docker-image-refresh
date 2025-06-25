@@ -125,7 +125,7 @@ def image_puller():
                 #'healthcheck': config.get('Healthcheck'),
                 'volumes': config.get('Volumes'), # Anonymous volumes
                 #'read_only': config.get('ReadonlyRootfs', False),
-                'ports': list(config.get('ExposedPorts', {}).keys())
+                'ports': {'8080/tcp': 78} #list(config.get('ExposedPorts', {}).keys())
             }
             test = list(config.get('ExposedPorts', {}).keys())
             print(f"ports={test}")
@@ -159,6 +159,7 @@ def image_puller():
                     elif len(bindings_for_this_port) > 0:
                         new_port_bindings[container_port] = bindings_for_this_port
                     # If there are no actual host ports bound, no need to add this container_port
+            print(f"port bindings: {new_port_bindings}")
 
             # Prepare host config
             # Use client.api.create_host_config to correctly format host-specific options
