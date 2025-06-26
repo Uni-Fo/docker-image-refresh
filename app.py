@@ -33,26 +33,7 @@ def image_puller():
 
     restart_containers = request.form.get('restart_containers', 'false').lower() == "true"
 
-    # 2. Pull the new image
-    print(f"Pulling new image: {full_image_name_for_pull}...")
-    try:
-        client.images.pull(image_repo, tag=image_tag)
-        print(f"Successfully pulled {full_image_name_for_pull}")
-    except docker.errors.ImageNotFound:
-        print(f"Error: Image '{full_image_name_for_pull}' not found in registry.")
-        return jsonify(success=False, error=f"Image '{full_image_name_for_pull}' not found."), 404
-    except docker.errors.APIError as e:
-        print(f"Error pulling image {full_image_name_for_pull}: {e}")
-        return jsonify(success=False, error=f"Failed to pull image {full_image_name_for_pull}: {e}"), 500
-    except Exception as e:
-        print(f"An unexpected error occurred while pulling image: {e}")
-        return jsonify(success=False, error=f"An unexpected error occurred while pulling image: {e}"), 500
-    
-    if not restart_containers:
-        print(f"Option 'restart_containers' is false. Image pulled, but no containers will be restarted.")
-        return jsonify(success=True, message=f"Image {full_image_name_for_pull} pulled successfully. No containers restarted as requested."), 200
-
-    # 3. Identify containers to update
+    # 2. Identify containers to update
     old_containers_to_update = []
     print(f"Scanning for running containers based on image '{full_image_name_for_pull}'...")
     try:
@@ -77,6 +58,25 @@ def image_puller():
         return jsonify(success=True, message=f"No containers to update for image {full_image_name_for_pull}."), 200
 
     print(f"Found {len(old_containers_to_update)} container(s) to update.")
+
+    # 3. Pull the new image
+    print(f"Pulling new image: {full_image_name_for_pull}...")
+    try:
+        client.images.pull(image_repo, tag=image_tag)
+        print(f"Successfully pulled {full_image_name_for_pull}")
+    except docker.errors.ImageNotFound:
+        print(f"Error: Image '{full_image_name_for_pull}' not found in registry.")
+        return jsonify(success=False, error=f"Image '{full_image_name_for_pull}' not found."), 404
+    except docker.errors.APIError as e:
+        print(f"Error pulling image {full_image_name_for_pull}: {e}")
+        return jsonify(success=False, error=f"Failed to pull image {full_image_name_for_pull}: {e}"), 500
+    except Exception as e:
+        print(f"An unexpected error occurred while pulling image: {e}")
+        return jsonify(success=False, error=f"An unexpected error occurred while pulling image: {e}"), 500
+    
+    if not restart_containers:
+        print(f"Option 'restart_containers' is false. Image pulled, but no containers will be restarted.")
+        return jsonify(success=True, message=f"Image {full_image_name_for_pull} pulled successfully. No containers restarted as requested."), 200
 
     # 4. Process each container individually
     updated_count = 0
